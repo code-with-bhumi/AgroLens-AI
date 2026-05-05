@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import numpy as np
 from pathlib import Path
@@ -7,23 +8,45 @@ import torch
 from torch.utils.data import Dataset
 
 """
+Return the project root directory for notebooks and Colab.
+"""
+def get_project_root():
+    if 'COLAB_GPU' in os.environ or 'COLAB_RELEASE_TAG' in os.environ:
+        nb_dir = Path(os.getcwd())
+    else:
+        import IPython
+        ip = IPython.get_ipython()
+        nb_dir = Path(ip.run_line_magic('pwd', '')).resolve() if ip else Path('.').resolve()
+    return nb_dir.parent
+
+"""
 Custom PyTorch Dataset for loading crop disease images from CSV split files.
 
 Args:
     csv_path (Path): Path to CSV file with 'path' and 'label' columns
     transform (callable, optional): Torchvision transforms to apply to images
+    subset_fraction (float): Fraction of data to use (stratified per class). Default: 1.0 (all data)
 """
 class PlantVillageDataset(Dataset):
     
-    def __init__(self, csv_path, transform=None):
+    def __init__(self, csv_path, transform=None, subset_fraction=1.0):
         try:
-            self.df = pd.read_csv(csv_path)
-            print(f"✅ Loaded {csv_path.name} with {len(self.df)} samples")
+            df = pd.read_csv(csv_path)
+            
+            # Apply stratified subset if specified
+            if subset_fraction < 1.0:
+                sampled_idx = df.groupby('label', group_keys=False).apply(
+                    lambda x: x.sample(frac=subset_fraction, random_state=42)
+                ).index
+                df = df.loc[sampled_idx].reset_index(drop=True)
+            
+            self.df = df
+            print(f"✅ Loaded {Path(csv_path).name} with {len(self.df)} samples")
         except Exception as e:
             raise FileNotFoundError(f"Error loading {csv_path}: {e}")
         
         self.transform = transform
-        self.classes = sorted(self.df['label'].unique())
+        self.classes = sorted(self.df['label'].unique().tolist())
         self.class_to_idx = {cls: idx for idx, cls in enumerate(self.classes)}
     
     def __len__(self):
