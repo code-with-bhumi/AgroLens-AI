@@ -20,3 +20,5 @@ data/metadata/.gitkeep
 .ipynb_checkpoints/
 __pycache__/
 *.pyc
+
+backend/__pycache__/

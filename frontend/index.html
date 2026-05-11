@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgroLens-AI</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <div class="app-shell">
+        <header>
+            <h1>AgroLens-AI</h1>
+            <p>Upload a leaf image and get a disease prediction with confidence.</p>
+        </header>
+        <main>
+            <form id="inference-form">
+                <label for="image-input">Select an image</label>
+                <input id="image-input" type="file" accept="image/*" required />
+                <button type="submit">Predict</button>
+            </form>
+            <div class="preview-card">
+                <img id="preview-image" alt="Selected leaf preview" />
+                <div id="result-card" class="result-card hidden">
+                    <h2>Prediction</h2>
+                    <p id="top-label"></p>
+                    <p id="top-confidence"></p>
+                    <div id="topk-list"></div>
+                </div>
+            </div>
+            <div id="error-message" class="error-message"></div>
+        </main>
+        <footer>
+            <p>Backend API: <code>http://localhost:8000/predict</code></p>
+        </footer>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
