@@ -5,6 +5,7 @@ from typing import List
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import JSONResponse
 from PIL import Image
+from fastapi.middleware.cors import CORSMiddleware
 
 from backend.model_utils import (
     load_config,
@@ -25,6 +26,20 @@ app = FastAPI(
     swagger_ui_parameters={
         "defaultModelsExpandDepth": -1
     }
+)
+
+# CORS Configuration
+origins = [
+    "http://localhost:5500",
+    "http://127.0.0.1:5500",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 cfg = load_config(MODEL_CONFIG_PATH)
